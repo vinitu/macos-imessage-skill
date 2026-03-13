@@ -1,6 +1,6 @@
 # Repo Guide
 
-This repo stores a skill for iMessage/SMS integration on macOS.
+This repo stores the macOS iMessage skill for iMessage/SMS integration.
 
 ## Goal
 
