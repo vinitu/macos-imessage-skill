@@ -4,16 +4,14 @@ This repo stores a skill for iMessage integration on macOS via **Messages.app Ap
 
 ## Installation
 
-Install with `skills.sh`:
+```bash
+npx skills add vinitu/macos-imessage-skill
+```
+
+Or with [skills.sh](https://skills.sh):
 
 ```bash
 skills.sh add vinitu/macos-imessage-skill
-```
-
-If you use the npm installer instead:
-
-```bash
-npx skills add vinitu/macos-imessage-skill
 ```
 
 ## Scope
