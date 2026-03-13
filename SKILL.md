@@ -1,9 +1,9 @@
 ---
-name: imessage
+name: macos-imessage
 description: Send and read iMessages/SMS from macOS. Use for texting contacts, scheduling services, or automating message-based workflows. Triggers on queries about texting, messaging, SMS, iMessage, or contacting someone via text.
 ---
 
-# iMessage Integration
+# macOS iMessage Integration
 
 Send and read iMessages/SMS using the `imsg` CLI tool on macOS.
 

@@ -1,4 +1,4 @@
-# Apple iMessage Skill
+# macOS iMessage Skill
 
 This repo stores a skill for iMessage/SMS integration on macOS via the [`imsg`](https://github.com/letta-ai/imsg) CLI tool.
 
@@ -7,13 +7,13 @@ This repo stores a skill for iMessage/SMS integration on macOS via the [`imsg`](
 Install with `skills.sh`:
 
 ```bash
-skills.sh add vinitu/apple-imessage-skill
+skills.sh add vinitu/macos-imessage-skill
 ```
 
 If you use the npm installer instead:
 
 ```bash
-npx skills add vinitu/apple-imessage-skill
+npx skills add vinitu/macos-imessage-skill
 ```
 
 ## Scope
