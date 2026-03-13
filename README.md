@@ -1,6 +1,6 @@
 # macOS iMessage Skill
 
-This repo stores a skill for iMessage/SMS integration on macOS via the [`imsg`](https://github.com/letta-ai/imsg) CLI tool.
+This repo stores a skill for iMessage integration on macOS via **Messages.app AppleScript** (no external CLI for send/list). History is read from the Messages SQLite DB (requires Full Disk Access and jq).
 
 ## Installation
 
@@ -18,41 +18,60 @@ npx skills add vinitu/macos-imessage-skill
 
 ## Scope
 
-- List recent chats and view message history.
-- Send iMessages and SMS to phone numbers or existing chats.
-- Attach files to outgoing messages.
-- Watch chats for new incoming messages.
+- List Message accounts (services) and get the default iMessage account.
+- List chats (id, name).
+- Send an iMessage to a buddy (phone/email) or to a chat by id; optional file attachment (`--file`).
+- **Read message history** for a chat (from the Messages SQLite DB; requires Full Disk Access and jq).
 
 ## Prerequisites
 
-- macOS 14+ with Messages.app configured
-- [`imsg`](https://github.com/letta-ai/imsg) CLI built from source (Swift)
-- Full Disk Access and Automation permissions granted
-- (Optional) SMS Relay enabled on iPhone for green-bubble messages
+- macOS with Messages.app configured and signed in to iMessage
+- **Automation** permission for Terminal (for sending)
+- **Full Disk Access** for Terminal (for reading history via `scripts/history.sh`)
+- **jq** for history script output (`brew install jq`)
 
-## How To Use
+## Command Surface
+
+Run AppleScript entrypoints with `osascript`:
 
 ```bash
-# List recent chats
-imsg chats --limit 10
+# List accounts (services); output JSON
+osascript scripts/account/list.applescript
 
-# View chat history
-imsg history --chat-id <id> --limit 20
+# Default iMessage account id; output JSON
+osascript scripts/account/default.applescript
 
-# Send a message
-imsg send --to "+15555555555" --text "Hello!"
+# List chats; output JSON, optional --limit=N
+osascript scripts/chat/list.applescript --limit=10
 
-# Watch for new messages
-imsg watch --chat-id <id> --debounce 250ms
+# Send a message (requires Automation permission)
+osascript scripts/send.applescript "+15551234567" "Hello!"
+osascript scripts/send.applescript --chat-id "<chat_id>" "Hello!"
+osascript scripts/send.applescript "+15551234567" "Caption" --file /path/to/file.jpg
+
+# Read message history (requires Full Disk Access + jq)
+bash scripts/history.sh --chat-id "any;-;+48574096810" --limit 20
+bash scripts/history.sh --handle "+48574096810" --limit 50
 ```
 
-For the full command set and arguments, see `SKILL.md`.
+For full usage and best practices, see `SKILL.md`.
+
+## Repo Layout
+
+- `AGENTS.md` — repo rules for agents.
+- `SKILL.md` — full skill and command reference.
+- `Makefile` — `make dictionary-messages`, `make compile`, `make check`, `make test`.
+- `scripts/account/` — account (service) AppleScripts.
+- `scripts/chat/` — chat list AppleScript.
+- `scripts/send.applescript` — send message to a buddy handle.
+- `scripts/history.sh` — read message history from chat.db (Full Disk Access + jq).
+- `tests/` — dictionary contract, smoke test, history contract (error behaviour; history content is not tested in CI).
 
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| "not authorized" error | Grant Automation permission to terminal |
-| Can't read messages | Grant Full Disk Access to terminal |
-| SMS not sending | Enable Text Message Forwarding on iPhone |
-| Message stuck sending | Check Messages.app is signed in and working |
+| "not authorized" error | Grant Automation permission to Terminal (or your app) for Messages |
+| "No iMessage account found" | Sign in to iMessage in Messages.app |
+| "Participant not found" | Start a conversation with that number/email in Messages.app first, then retry |
+| "Cannot read chat.db" / authorization denied | Grant Full Disk Access to Terminal for the history script |
