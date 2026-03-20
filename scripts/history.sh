@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Read message history for a chat from Messages SQLite DB.
 # Requires: Full Disk Access for Terminal (or caller).
-# Usage: history.sh --chat-id "any;-;+48574096810" [--limit N]
-#        history.sh --handle "+48574096810" [--limit N]
+# Usage: history.sh --chat-id "any;-;+15551234567" [--limit N]
+#        history.sh --handle "+15551234567" [--limit N]
 # Output: JSON array of { "date", "is_from_me", "text" }. date is ISO 8601 local.
 
 set -euo pipefail

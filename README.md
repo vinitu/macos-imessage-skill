@@ -48,8 +48,8 @@ osascript scripts/send.applescript --chat-id "<chat_id>" "Hello!"
 osascript scripts/send.applescript "+15551234567" "Caption" --file /path/to/file.jpg
 
 # Read message history (requires Full Disk Access + jq)
-bash scripts/history.sh --chat-id "any;-;+48574096810" --limit 20
-bash scripts/history.sh --handle "+48574096810" --limit 50
+bash scripts/history.sh --chat-id "any;-;+15551234567" --limit 20
+bash scripts/history.sh --handle "+15551234567" --limit 50
 ```
 
 For full usage and best practices, see `SKILL.md`.

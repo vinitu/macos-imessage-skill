@@ -73,8 +73,8 @@ osascript scripts/send.applescript --chat-id "<chat_guid>" "Caption" --file /pat
 History is read from the Messages SQLite database (`~/Library/Messages/chat.db`). Requires **Full Disk Access** and **jq** (e.g. `brew install jq`).
 
 ```bash
-bash scripts/history.sh --chat-id "any;-;+48574096810" --limit 20
-bash scripts/history.sh --handle "+48574096810" --limit 50
+bash scripts/history.sh --chat-id "any;-;+15551234567" --limit 20
+bash scripts/history.sh --handle "+15551234567" --limit 50
 ```
 
 Output: JSON array of `{ "date", "is_from_me", "text" }`. `date` is ISO 8601 local; `is_from_me` is 1 (you sent) or 0 (received). `--limit` defaults to 50.
