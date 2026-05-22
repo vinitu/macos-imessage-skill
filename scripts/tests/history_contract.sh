@@ -4,8 +4,8 @@
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-HISTORY_SCRIPT="$ROOT_DIR/scripts/history.sh"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+HISTORY_SCRIPT="$ROOT_DIR/scripts/commands/message/history.sh"
 
 # Missing --chat-id and --handle: must exit non-zero
 set +e

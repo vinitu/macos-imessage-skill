@@ -1,6 +1,9 @@
 # macOS iMessage Skill
 
-This repo stores a skill for iMessage integration on macOS via **Messages.app AppleScript** (no external CLI for send/list). History is read from the Messages SQLite DB (requires Full Disk Access and jq).
+This repo stores an AI agent skill for Apple Messages.app iMessage integration on macOS.
+
+The public interface is `scripts/commands`.
+`scripts/applescripts` stores internal AppleScript backends and dictionary-aligned coverage.
 
 ## Installation
 
@@ -14,62 +17,87 @@ Or with [skills.sh](https://skills.sh):
 skills.sh add vinitu/macos-imessage-skill
 ```
 
-## Scope
-
-- List Message accounts (services) and get the default iMessage account.
-- List chats (id, name).
-- Send an iMessage to a buddy (phone/email) or to a chat by id; optional file attachment (`--file`).
-- **Read message history** for a chat (from the Messages SQLite DB; requires Full Disk Access and jq).
-
 ## Prerequisites
 
 - macOS with Messages.app configured and signed in to iMessage
 - **Automation** permission for Terminal (for sending)
-- **Full Disk Access** for Terminal (for reading history via `scripts/history.sh`)
+- **Full Disk Access** for Terminal (for reading history via `scripts/commands/message/history.sh`)
 - **jq** for history script output (`brew install jq`)
+
+## Public Interface
+
+Run skill actions with:
+
+```bash
+scripts/commands/<entity>/<action>.sh [args...]
+```
+
+Output rules:
+
+- Commands return JSON by default unless noted otherwise.
+- `--json`, `--plain`, and `--format=plain|json` are not supported.
+
+## Backend Map
+
+- `scripts/commands/account/*` → AppleScript in `scripts/applescripts/account/*`
+- `scripts/commands/chat/*` → AppleScript in `scripts/applescripts/chat/*`
+- `scripts/commands/message/*` → AppleScript in `scripts/applescripts/message/*` (send) or SQLite query (history)
+
+`scripts/applescripts` is internal. Do not call it directly from the skill instructions.
 
 ## Command Surface
 
-Run AppleScript entrypoints with `osascript`:
+Account:
+
+- `scripts/commands/account/list.sh`
+- `scripts/commands/account/default.sh`
+
+Chat:
+
+- `scripts/commands/chat/list.sh`
+
+Message:
+
+- `scripts/commands/message/send.sh`
+- `scripts/commands/message/history.sh`
+
+## JSON Contract
+
+Account object:
+
+- `id`
+- `description`
+- `service_type`
+- `enabled`
+
+Chat object:
+
+- `id`
+- `name`
+
+History object:
+
+- `date`
+- `is_from_me`
+- `text`
+
+Scalar envelopes:
+
+- `account_id`: `{"account_id": "..."}`
+- `sent` (plain text from send command, not JSON)
+
+## Validation
 
 ```bash
-# List accounts (services); output JSON
-osascript scripts/account/list.applescript
-
-# Default iMessage account id; output JSON
-osascript scripts/account/default.applescript
-
-# List chats; output JSON, optional --limit=N
-osascript scripts/chat/list.applescript --limit=10
-
-# Send a message (requires Automation permission)
-osascript scripts/send.applescript "+15551234567" "Hello!"
-osascript scripts/send.applescript --chat-id "<chat_id>" "Hello!"
-osascript scripts/send.applescript "+15551234567" "Caption" --file /path/to/file.jpg
-
-# Read message history (requires Full Disk Access + jq)
-bash scripts/history.sh --chat-id "any;-;+15551234567" --limit 20
-bash scripts/history.sh --handle "+15551234567" --limit 50
+make compile
+make test
 ```
 
-For full usage and best practices, see `SKILL.md`.
+`make test` runs live checks against Messages.app and expects iMessage to be available.
 
-## Repo Layout
+## Known Limits
 
-- `AGENTS.md` — repo rules for agents.
-- `SKILL.md` — full skill and command reference.
-- `Makefile` — `make dictionary-messages`, `make compile`, `make check`, `make test`.
-- `scripts/account/` — account (service) AppleScripts.
-- `scripts/chat/` — chat list AppleScript.
-- `scripts/send.applescript` — send message to a buddy handle.
-- `scripts/history.sh` — read message history from chat.db (Full Disk Access + jq).
-- `tests/` — dictionary contract, smoke test, history contract (error behaviour; history content is not tested in CI).
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| "not authorized" error | Grant Automation permission to Terminal (or your app) for Messages |
-| "No iMessage account found" | Sign in to iMessage in Messages.app |
-| "Participant not found" | Start a conversation with that number/email in Messages.app first, then retry |
-| "Cannot read chat.db" / authorization denied | Grant Full Disk Access to Terminal for the history script |
+- Messages.app must be running and signed in to iMessage.
+- TCC permissions (Automation) must be granted to the terminal or parent process.
+- SMS (green bubble) may require iPhone relay setup in Messages.app.
+- Message history requires Full Disk Access.
