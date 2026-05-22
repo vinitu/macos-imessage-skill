@@ -30,23 +30,8 @@ jobs:
       - name: Validate repository structure
         run: |
           set -euo pipefail
-          required=(
-            AGENTS.md
-            LICENSE
-            README.md
-            SKILL.md
-            Makefile
-            scripts/account/list.applescript
-            scripts/account/default.applescript
-            scripts/chat/list.applescript
-            scripts/send.applescript
-            scripts/history.sh
-            tests/dictionary_contract.sh
-            tests/smoke_imessage.sh
-            tests/history_contract.sh
-          )
-          for path in "${required[@]}"; do
-            [ -f "$path" ] || { echo "::error file=$path::Missing required file"; exit 1; }
+          for path in AGENTS.md LICENSE README.md SKILL.md Makefile scripts/commands/_lib/common.sh scripts/tests/dictionary_contract.sh scripts/tests/smoke_imessage.sh scripts/tests/history_contract.sh; do
+            [ -f "$path" ] || { echo "::error::Missing $path"; exit 1; }
           done
 
       - name: Check AppleScript syntax
@@ -58,7 +43,7 @@ jobs:
         run: |
           set -euo pipefail
           if command -v shellcheck >/dev/null 2>&1; then
-            find scripts tests -name '*.sh' -exec shellcheck {} +
+            find scripts scripts/tests -name '*.sh' -exec shellcheck {} +
           else
             echo "shellcheck not available, skipping"
           fi
@@ -83,7 +68,12 @@ jobs:
       - name: Run dictionary contract
         run: |
           set -euo pipefail
-          bash tests/dictionary_contract.sh
+          bash scripts/tests/dictionary_contract.sh
+
+      - name: Run tests
+        run: |
+          set -euo pipefail
+          make test
 
   determine_version:
     name: Detect version bump
@@ -361,7 +351,7 @@ jobs:
     needs:
       - merge_prs
       - create_tag
-    if: ${{ needs.merge_prs.outputs.merged == 'true' }}
+    if: ${{ needs.create_tag.result == 'success' && needs.merge_prs.outputs.merged == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -393,7 +383,7 @@ jobs:
             if [ -n "$changes" ]; then
               printf "%s\n" "$changes"
             else
-              echo "- Direct push to main."
+              echo "- No pull requests were merged in this release."
             fi
             if [ -n "$previous_tag" ]; then
               echo
