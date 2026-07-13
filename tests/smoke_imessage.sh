@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if ! osascript -e 'tell application "Messages" to get id of (first account whose service type is iMessage)' >/dev/null 2>&1; then
 	echo "smoke_imessage: Messages.app or iMessage not available (sign in or grant Automation)."

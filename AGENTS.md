@@ -2,6 +2,12 @@
 
 This repo stores the macOS iMessage skill for iMessage/SMS integration via Messages.app AppleScript.
 
+## Public interface and internal backend
+
+- `scripts/commands/` is the only public command surface. Run commands from the repo root with paths like `scripts/commands/<entity>/<action>.sh`.
+- `scripts/applescripts/` is the internal backend. Do not call AppleScript files directly from skill instructions.
+- Only commands listed in `SKILL.md` are public. Other scripts may exist for internal use or legacy cleanup.
+
 ## Goal
 
 - Keep AppleScript coverage accurate to the Messages.app dictionary.
@@ -17,7 +23,7 @@ This repo stores the macOS iMessage skill for iMessage/SMS integration via Messa
 
 - `SKILL.md` is the main skill workflow.
 - `README.md` is the repo overview for humans.
-- `scripts/account/`, `scripts/chat/`, and `scripts/send.applescript` are the AppleScript entrypoints.
+- `scripts/applescripts/account/`, `scripts/applescripts/chat/`, and `scripts/send.applescript` are the AppleScript entrypoints.
 - `scripts/history.sh` reads message history from `~/Library/Messages/chat.db` (requires Full Disk Access and jq).
 - `tests/` holds the dictionary contract, smoke test, and history contract test.
 

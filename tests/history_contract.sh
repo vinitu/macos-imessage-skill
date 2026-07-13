@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 HISTORY_SCRIPT="$ROOT_DIR/scripts/commands/message/history.sh"
 
 # Missing --chat-id and --handle: must exit non-zero
@@ -16,7 +16,7 @@ if [[ $rc -eq 0 ]]; then
 	echo "history_contract: expected non-zero exit when no --chat-id/--handle" >&2
 	exit 1
 fi
-echo "$out" | grep -q "Provide --chat-id or --handle" || { echo "history_contract: expected 'Provide --chat-id or --handle' in output" >&2; exit 1; }
+echo "$out" | grep -qE "Provide --chat-id or --handle\.?" || { echo "history_contract: expected 'Provide --chat-id or --handle' in output, got: $out" >&2; exit 1; }
 
 # Invalid --limit: must exit non-zero and emit JSON error
 set +e
