@@ -30,7 +30,7 @@ jobs:
       - name: Validate repository structure
         run: |
           set -euo pipefail
-          for path in AGENTS.md LICENSE README.md SKILL.md Makefile scripts/commands/_lib/common.sh scripts/tests/dictionary_contract.sh scripts/tests/smoke_imessage.sh scripts/tests/history_contract.sh; do
+          for path in AGENTS.md LICENSE README.md SKILL.md Makefile scripts/commands/_lib/common.sh tests/dictionary_contract.sh tests/smoke_imessage.sh tests/history_contract.sh; do
             [ -f "$path" ] || { echo "::error::Missing $path"; exit 1; }
           done
 
@@ -43,7 +43,7 @@ jobs:
         run: |
           set -euo pipefail
           if command -v shellcheck >/dev/null 2>&1; then
-            find scripts scripts/tests -name '*.sh' -exec shellcheck {} +
+            find scripts tests -name '*.sh' -exec shellcheck {} +
           else
             echo "shellcheck not available, skipping"
           fi
@@ -68,7 +68,7 @@ jobs:
       - name: Run dictionary contract
         run: |
           set -euo pipefail
-          bash scripts/tests/dictionary_contract.sh
+          bash tests/dictionary_contract.sh
 
       - name: Run tests
         run: |

@@ -17,7 +17,7 @@ compile:
 	find scripts/applescripts -name '*.applescript' -print | while IFS= read -r file; do \
 		osacompile -o /tmp/$$(echo "$$file" | tr '/' '_' | sed 's/\.applescript$$/.scpt/') "$$file" || exit 1; \
 	done; \
-	find scripts/tests scripts/commands -name '*.sh' -print | while IFS= read -r file; do \
+	find tests scripts/commands -name '*.sh' -print | while IFS= read -r file; do \
 		bash -n "$$file" || exit 1; \
 	done
 
@@ -28,10 +28,10 @@ check:
 test: test-dictionary test-smoke test-history-contract
 
 test-dictionary:
-	@bash scripts/tests/dictionary_contract.sh
+	@bash tests/dictionary_contract.sh
 
 test-smoke:
-	@bash scripts/tests/smoke_imessage.sh
+	@bash tests/smoke_imessage.sh
 
 test-history-contract:
-	@bash scripts/tests/history_contract.sh
+	@bash tests/history_contract.sh
