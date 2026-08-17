@@ -31,11 +31,12 @@ echo "$out" | grep -q '"error"' || { echo "history_contract: expected JSON error
 echo "$out" | grep -q "limit" || true
 
 # With valid args: either success (FDA + chat exists) or JSON error (no FDA / no chat).
-# We only require: script runs, and if it exits 1, stderr contains JSON "error" or chat.db/FDA message.
+# We only require: script runs, and if it exits non-zero, the combined output contains
+# a JSON "error" envelope or a chat.db/FDA message. common.sh json_fail writes to stdout.
 err="$(mktemp)"
 trap 'rm -f "$err"' EXIT
 set +e
-bash "$HISTORY_SCRIPT" --handle "nonexistent-handle-12345" --limit 2 2>"$err"
+bash "$HISTORY_SCRIPT" --handle "nonexistent-handle-12345" --limit 2 >"$err" 2>&1
 rc=$?
 set -e
 if [[ $rc -ne 0 ]]; then

@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # Read message history for a chat from Messages SQLite DB.
-# Requires: Full Disk Access for Terminal (or caller).
+# Requires: Full Disk Access for Terminal (or caller) and jq.
 # Usage: history.sh --chat-id "any;-;+15551234567" [--limit N]
 #        history.sh --handle "+15551234567" [--limit N]
 # Output: JSON array of { "date", "is_from_me", "text" }. date is ISO 8601 local.
 
 set -euo pipefail
+
+# shellcheck source=scripts/commands/_lib/common.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../../_lib/common.sh"
 
 MESSAGES_DB="${HOME}/Library/Messages/chat.db"
 CHAT_ID=""
@@ -15,28 +18,31 @@ LIMIT=50
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 		--chat-id)
-			CHAT_ID="${2:?Missing value for --chat-id}"
+			CHAT_ID="${2:-}"
+			[[ -z "$CHAT_ID" ]] && json_fail "missing value for --chat-id"
 			shift 2
 			;;
 		--handle)
-			HANDLE="${2:?Missing value for --handle}"
+			HANDLE="${2:-}"
+			[[ -z "$HANDLE" ]] && json_fail "missing value for --handle"
 			shift 2
 			;;
 		--limit)
-			LIMIT="${2:?Missing value for --limit}"
-			[[ "$LIMIT" =~ ^[0-9]+$ ]] && [[ "$LIMIT" -ge 1 ]] && [[ "$LIMIT" -le 500 ]] || { echo "{\"error\":\"--limit must be 1..500\"}" >&2; exit 1; }
+			LIMIT="${2:-}"
+			[[ -z "$LIMIT" ]] && json_fail "missing value for --limit"
+			if ! [[ "$LIMIT" =~ ^[0-9]+$ ]] || [[ "$LIMIT" -lt 1 ]] || [[ "$LIMIT" -gt 500 ]]; then
+				json_fail "--limit must be 1..500"
+			fi
 			shift 2
 			;;
 		*)
-			echo "Unknown option: $1" >&2
-			exit 1
+			json_fail "unknown option: $1"
 			;;
 	esac
 done
 
 if [[ -z "$CHAT_ID" && -z "$HANDLE" ]]; then
-	echo "Provide --chat-id or --handle." >&2
-	exit 1
+	json_fail "Provide --chat-id or --handle."
 fi
 
 if [[ -z "$HANDLE" ]]; then
@@ -48,13 +54,11 @@ if [[ -z "$HANDLE" ]]; then
 fi
 
 if [[ ! -r "$MESSAGES_DB" ]]; then
-	echo "{\"error\":\"Cannot read $MESSAGES_DB. Grant Full Disk Access to Terminal (System Settings → Privacy & Security → Full Disk Access).\"}" >&2
-	exit 1
+	json_fail "Cannot read $MESSAGES_DB. Grant Full Disk Access to Terminal (System Settings → Privacy & Security → Full Disk Access)."
 fi
 
 if ! command -v jq &>/dev/null; then
-	echo "{\"error\":\"jq is required for JSON output. Install with: brew install jq\"}" >&2
-	exit 1
+	json_fail "jq is required for JSON output. Install with: brew install jq"
 fi
 
 # Escape single quote for SQL: ' -> ''
