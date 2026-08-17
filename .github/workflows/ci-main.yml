@@ -24,21 +24,7 @@ jobs:
       - name: Validate repository structure
         run: |
           set -euo pipefail
-          required=(
-            AGENTS.md
-            LICENSE
-            README.md
-            SKILL.md
-            Makefile
-            scripts/account/list.applescript
-            scripts/account/default.applescript
-            scripts/chat/list.applescript
-            scripts/send.applescript
-            scripts/history.sh
-            tests/dictionary_contract.sh
-            tests/smoke_imessage.sh
-          )
-          for path in "${required[@]}"; do
+          for path in AGENTS.md LICENSE README.md SKILL.md Makefile scripts/commands/_lib/common.sh scripts/applescripts/account/list.applescript scripts/applescripts/account/default.applescript scripts/applescripts/chat/list.applescript scripts/applescripts/message/send.applescript scripts/commands/message/history.sh tests/dictionary_contract.sh tests/smoke_imessage.sh tests/history_contract.sh; do
             [ -f "$path" ] || { echo "::error file=$path::Missing required file"; exit 1; }
           done
 
@@ -51,7 +37,7 @@ jobs:
         run: |
           set -euo pipefail
           if command -v shellcheck >/dev/null 2>&1; then
-            shellcheck tests/*.sh scripts/*.sh
+            find scripts tests -name '*.sh' -exec shellcheck {} +
           else
             echo "shellcheck not available, skipping"
           fi

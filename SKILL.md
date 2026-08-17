@@ -33,7 +33,7 @@ Run commands from `scripts/commands`:
 
 - `account/list.sh` and `chat/list.sh` return JSON arrays.
 - `account/default.sh` returns JSON object.
-- `message/send.sh` returns plain text `sent` (not JSON; JSON conversion deferred).
+- `message/send.sh` returns JSON object `{"sent": true}` on success.
 - `message/history.sh` returns JSON array.
 - `--json`, `--plain`, and `--format=plain|json` are not supported.
 
@@ -117,9 +117,15 @@ History object:
 Scalar envelopes:
 
 - `account_id`: `{"account_id": "..."}`
+- `sent`: `{"sent": true}`
+
+Error envelope (all commands):
+
+- `{"success": false, "error": "..."}`
 
 ## Safety Boundaries
 
 - Never send messages without explicit user approval.
 - Protect user privacy: do not log or store message content or contact handles.
 - Treat message history as private user data.
+- Any future test that exercises the send path must use a `CodexTest_` prefix in the message text and clean up after itself.
